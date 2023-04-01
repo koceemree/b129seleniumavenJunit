@@ -42,6 +42,7 @@ public class Ebay {
     public void ebay() throws InterruptedException {
       //  - ebay sayfasına gidiniz
         driver.get("https://www.ebay.com/");
+
         String homeTitle=driver.getTitle();
         System.out.println("homeTitle = " + homeTitle);
 

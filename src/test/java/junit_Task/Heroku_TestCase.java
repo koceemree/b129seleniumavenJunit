@@ -64,7 +64,7 @@ public class Heroku_TestCase {
             count++;
         }
         List<WebElement> deleteList = driver.findElements(By.xpath("//button[@onclick='deleteElement()']"));
-        deleteList.size();
+        System.out.println("deleteList.size() = " + deleteList.size());
         if(deleteList.size()==10){
             System.out.println("AddElement butonuna tıklanma sayısı = " + count);
         }else {
