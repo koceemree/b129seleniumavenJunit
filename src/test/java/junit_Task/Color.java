@@ -20,14 +20,14 @@ public class Color extends TestBase {
         WebElement yesil = driver.findElement(By.xpath("//div[@id='green']/span"));
         WebElement mavi = driver.findElement(By.xpath("//div[@id='blue']/span"));
         Actions actions = new Actions(driver);
-//        // Red slider'ı tamamen sağa kaydır
+//       
         actions.dragAndDropBy(red, 100, 0).perform();
         bekle(5);
-        // Green slider'ı tamamen sağa kaydır
+       
         actions.dragAndDropBy(yesil, 300, 0).perform();
         actions.dragAndDropBy(yesil, -300, 0).perform();
         bekle(5);
-        // Blue slider'ı tamamen sola kaydır
+       
         actions.dragAndDropBy(mavi, 300, 0).perform();
         actions.dragAndDropBy(mavi, -300, 0).perform();
 
