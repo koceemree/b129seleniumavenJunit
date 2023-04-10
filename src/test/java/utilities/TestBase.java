@@ -10,6 +10,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.Select;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class TestBase {
     protected static WebDriver driver;
@@ -26,7 +28,7 @@ public abstract class TestBase {
     @After
     public void tearDown() throws Exception {
         bekle(3);
-        driver.quit();
+    //    driver.quit();
     }
     //HARD WAIT METHOD
     public static void bekle(int saniye){
@@ -56,7 +58,7 @@ public abstract class TestBase {
     /*
         Select select2 = new Select(gun);
         select2.selectByVisibleText("7");
-​
+
         //ddmVisibleText(gun,"7"); --> Yukarıdaki kullanım yerine sadece method ile handle edebilirim
      */
     public static void ddmVisibleText(WebElement ddm,String secenek){
@@ -72,6 +74,17 @@ public abstract class TestBase {
     public static void ddmValue(WebElement ddm, String secenek){
        Select select = new Select(ddm);
         select.selectByValue(secenek);
+    }
+
+    //SwitcToWindow
+    public static void switcToWindow(int sayi){
+        List<String> tumHandle = new ArrayList<>(driver.getWindowHandles());
+        driver.switchTo().window(tumHandle.get(sayi));
+    }
+
+    //SwitchToWindow2
+    public static void window(int sayi){
+        driver.switchTo().window(driver.getWindowHandles().toArray()[sayi].toString());
     }
 
 }
