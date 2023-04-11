@@ -46,11 +46,15 @@ public class FaceBookFaker extends TestBase {
 //        edin.
         List<WebElement> genderContainer = driver.findElements(By.xpath("//span[@class='_5k_2 _5dba']/input"));
 
-
+        List<WebElement> options = driver.findElements(By.xpath("//span[@class='_5k_2 _5dba']/label"));
+        System.out.println(options.get(0).getText());
         for (WebElement option : genderContainer) {
             if (option.isSelected()) {
                 System.out.println("Seçili olan cinsiyet: " + option.getAttribute("value"));
-                break;
+
+            }
+            if(!option.isSelected()){
+                System.out.println("Seçili olmayan cinsiyet: " + option.getAttribute("value"));
             }
 //        13. Sayfayi kapatin
         }
