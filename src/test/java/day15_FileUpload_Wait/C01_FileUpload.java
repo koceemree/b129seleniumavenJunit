@@ -19,6 +19,14 @@ public class C01_FileUpload extends TestBase {
     */
         driver.get("https://the-internet.herokuapp.com/upload");
 
+        /*
+        Bir Web sayfasında upload işlemi yapmamız gerekirse;
+            1-Öncelikle upload edeceğimiz webelementi locate ederiz
+            2-Upload edeceğimiz dosya yolunu bir string'e assingn ederiz
+            3-Locate ettiğimiz webelement'e sendkeys() methodu ile dosyayolunu aldığımız string değişkeni göndeririz
+         */
+
+
         WebElement fileChoose = driver.findElement(By.id("file-upload"));
        // "C:\\Users\\asd\\Desktop\\Yeni Metin Belgesi.txt"
         String dosyaYolu = System.getProperty("user.home") +"\\Desktop\\Yeni Metin Belgesi.txt";
