@@ -1,25 +1,36 @@
 package utilities;
 
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public abstract class TestBase {
+    //TestBase class'ından Obje oluşturmanın önüne geçilmesi için abstract yapılabilir
+    //Orn: TestBase base = new TestBase()
+    //Bu class'a extends ettiğimiz test classlarından ulaşabiliriz
     protected static WebDriver driver;
-    //TestBase class'indan obje olusturmanin onune gecilmesi icin abstract yapilabilir
-    //Orn: TestBase base=new TestBase();
-    //Bu class'a extend ettigimiz test classlarinda ulasabiliriz.
+    protected ExtentReports extentReports; //Raporlamayı başlatır
+    protected ExtentHtmlReporter extentHtmlReporter;//Raporu HTML formatında düzenler
+    protected ExtentTest extentTest;//Tüm test aşamalarında extentTest objesi ile bilgi ekleriz
+
     @Before
     public void setUp() throws Exception {
         WebDriverManager.chromedriver().setup();
@@ -27,11 +38,13 @@ public abstract class TestBase {
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
     }
+
     @After
     public void tearDown() throws Exception {
         bekle(3);
-    //    driver.quit();
+        //driver.quit();
     }
+
     //HARD WAIT METHOD
     public static void bekle(int saniye){
         try {
@@ -73,26 +86,128 @@ public abstract class TestBase {
         select.selectByIndex(index);
     }
     //DropDown Value
-    public static void ddmValue(WebElement ddm, String secenek){
-       Select select = new Select(ddm);
+    public static void ddmValue(WebElement ddm,String secenek){
+        Select select = new Select(ddm);
         select.selectByValue(secenek);
     }
-
-    //SwitcToWindow
-    public static void switcToWindow(int sayi){
-        List<String> tumHandle = new ArrayList<>(driver.getWindowHandles());
-        driver.switchTo().window(tumHandle.get(sayi));
+    //SwitchToWindow1
+    public static void switchToWindow(int sayi){
+        List<String> tumWindowHandles = new ArrayList<String>(driver.getWindowHandles());
+        driver.switchTo().window(tumWindowHandles.get(sayi));
     }
-
     //SwitchToWindow2
     public static void window(int sayi){
         driver.switchTo().window(driver.getWindowHandles().toArray()[sayi].toString());
     }
+    //EXPLICIT WAIT METHODS
 
-    //Explicit Wait
-    public static void visibleWait(WebElement element, int sayi){
+    //Visible Wait
+    public static void visibleWait(WebElement element,int sayi){
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(sayi));
         wait.until(ExpectedConditions.visibilityOf(element));
+
+    }
+    //VisibleElementLocator Wait
+    public static WebElement visibleWait(By locator, int sayi){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(sayi));
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+
+    }
+    //Alert Wait
+    public static void alertWait(int sayi){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(sayi));
+        wait.until(ExpectedConditions.alertIsPresent());
+
+    }
+    //Tüm Sayfa ScreenShot
+    public static void tumSayfaResmi(){
+        String tarih = new SimpleDateFormat("_hh_mm_ss_ddMMyyyy").format(new Date());
+        String dosyaYolu = "TestOutput/screenshot/screenshot"+tarih+".png";
+        TakesScreenshot ts = (TakesScreenshot) driver;
+        try {
+            FileUtils.copyFile(ts.getScreenshotAs(OutputType.FILE),new File(dosyaYolu));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //WebElement ScreenShot
+    public static void webElementResmi(WebElement element){
+        String tarih = new SimpleDateFormat("_hh_mm_ss_ddMMyyyy").format(new Date());
+        String dosyaYolu = "TestOutput/screenshot/webElementScreenshot"+tarih+".png";
+
+        try {
+            FileUtils.copyFile(element.getScreenshotAs(OutputType.FILE),new File(dosyaYolu));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    //ExtentReport
+    public void extentReport(){
+        extentReports = new ExtentReports();
+        String tarih = new SimpleDateFormat("_hh_mm_ss_ddMMyyyy").format(new Date());
+        String dosyaYolu = "TestOutput/reports/extentReport_"+tarih+".html";
+        extentHtmlReporter = new ExtentHtmlReporter(dosyaYolu);
+        extentReports.attachReporter(extentHtmlReporter);
+
+        //Raporda gözükmesini istediğimiz bilgiler için
+        extentReports.setSystemInfo("Browser","Chrome");
+        extentReports.setSystemInfo("Tester","Erol");
+        extentHtmlReporter.config().setDocumentTitle("Extent Report");
+        extentHtmlReporter.config().setReportName("Smoke Test Raporu");
+    }
+    //WebTable
+    public void printData(int satir, int sutun){
+        WebElement satirSutun = driver.findElement(By.xpath("(//tbody)[1]//tr["+satir+"]//td["+sutun+"]"));
+        System.out.println(satirSutun.getText());
+    }
+
+    //Click Method
+    public void click(WebElement element){
+        try {
+            element.click();
+        } catch (Exception e) {
+            JavascriptExecutor js = (JavascriptExecutor) driver;
+            js.executeScript("arguments[0].click();",element);
+        }
+    }
+
+    //JS Scroll
+    public void scroll(WebElement element){
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].scrollIntoView(true);",element);
+    }
+
+    //JS Sayfa Sonu Scroll
+    public void scrollEnd(){
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.scrollTo(0,document.body.scrollHeight)");
+    }
+
+    //JS Sayfa Başı Scroll
+    public void scrollHome(){
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("window.scrollTo(0,-document.body.scrollHeight)");
+    }
+
+    //JS SendKeys
+    public void sendKeysJS(WebElement element,String text){
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].value='"+text+"'",element);
+    }
+    //JS SendAttributeValue
+    public void sendAttributeJS(WebElement element,String text){
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].setAttribute('value','"+text+"')",element);
+    }
+
+    //JS GetAttributeValue
+    public void getValueByJS(String id, String attributeName) {
+
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        String attribute_Value = (String) js.executeScript("return document.getElementById('" + id + "')." + attributeName);
+        System.out.println("Attribute Value: = " + attribute_Value);
+
     }
 
 }
